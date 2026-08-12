@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Registrar Salida</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>L10 ALMACEN</h2>
+
+<a href="index.html">Inicio</a>
+<a href="entrada.html">Registrar Entrada</a>
+<a href="salida.html">Registrar Salida</a>
+<a href="stock.html">Inventario</a>
+<a href="historial.html">Historial</a>
+
+<a id="adminMenu" href="usuarios.html">Usuarios</a>
+
+</div>
+
+<!-- USER BAR -->
+<div class="user-bar">
+<span id="usuarioActivo">Cargando...</span>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="main">
+
+<div class="card">
+
+<h2>Registrar Salida</h2>
+
+<input 
+id="idProducto" 
+placeholder="Buscar producto..."
+onkeyup="suggestProductsSalida()"
+autocomplete="off"
+>
+
+<div id="sugerenciasSalida"></div>
+
+<input id="idAuto" placeholder="ID" readonly>
+<input id="pnAuto" placeholder="PN" readonly>
+
+<input 
+id="cantidadSalida"
+type="number"
+placeholder="Cantidad"
+min="1"
+step="1"
+oninput="this.value = this.value.replace(/[^0-9]/g,'')"
+>
+
+<input 
+id="comentariosSalida" 
+placeholder="Comentarios"
+>
+
+<button onclick="registrarSalida()">
+Registrar salida
+</button>
+
+</div>
+
+</div>
+
+<!-- ORDEN CORRECTO -->
+<script type="module" src="js/auth-global.js"></script>
+<script type="module" src="js/app.js"></script>
+
+<!-- MEJORA UX -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // ENTER para registrar salida
+  const inputCantidad = document.getElementById("cantidadSalida");
+
+  inputCantidad.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      if (typeof registrarSalida === "function") {
+        registrarSalida();
+      }
+    }
+  });
+
+});
+</script>
+
+</body>
+</html>

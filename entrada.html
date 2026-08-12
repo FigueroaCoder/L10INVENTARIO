@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Registrar Entrada</title>
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+#sugerencias{
+border:1px solid #ccc;
+max-height:150px;
+overflow-y:auto;
+background:white;
+position:absolute;
+width:300px;
+z-index:100;
+border-radius:6px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.suggestion{
+padding:10px;
+cursor:pointer;
+border-bottom:1px solid #eee;
+}
+
+.suggestion:hover{
+background:#f1f2f6;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+<h2>L10 ALMACEN</h2>
+
+<a href="index.html">Inicio</a>
+<a href="entrada.html">Registrar Entrada</a>
+<a href="salida.html">Registrar Salida</a>
+<a href="stock.html">Inventario</a>
+<a href="historial.html">Historial</a>
+
+<a id="adminMenu" href="usuarios.html">Usuarios</a>
+</div>
+
+<div class="user-bar">
+<span id="usuarioActivo">Cargando...</span>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="main">
+<div class="card">
+
+<h2>Registrar Entrada</h2>
+
+<input 
+id="nombre" 
+placeholder="Nombre o ID del producto" 
+autocomplete="off"
+onkeyup="suggestProducts()"
+>
+
+<div id="sugerencias"></div>
+
+<div id="contenedorID" style="display:none;">
+<input id="idAuto" placeholder="ID Producto" readonly>
+</div>
+
+<input id="pn" placeholder="NP / Part Number">
+
+<input 
+id="cantidad"
+type="number"
+placeholder="Cantidad"
+min="1"
+oninput="this.value = this.value.replace(/[^0-9]/g,'')"
+>
+
+<label>Ubicación</label>
+<select id="ubicacion">
+<option value="">Seleccionar ubicación</option>
+<option>1A</option><option>2A</option><option>3A</option>
+<option>1B</option><option>2B</option><option>3B</option>
+<option>1C</option><option>2C</option><option>3C</option>
+</select>
+
+<input id="comentarios" placeholder="Comentarios (opcional)">
+
+<button onclick="registerEntry()">Registrar</button>
+<button onclick="resetCampos()">Nuevo producto</button>
+
+</div>
+</div>
+
+<script type="module" src="js/auth-global.js"></script>
+<script type="module" src="js/app.js"></script>
+
+<script>
+// 🔥 AUTOCOMPLETE USANDO CACHE
+window.suggestProducts = function(){
+
+const input = document.getElementById("nombre").value.toLowerCase();
+const contenedor = document.getElementById("sugerencias");
+
+contenedor.innerHTML = "";
+if(!input) return;
+
+if(!window.cacheInventario || window.cacheInventario.length === 0){
+return; // ⚠️ evita error si aún no carga inventario
+}
+
+const filtrados = window.cacheInventario.filter(p =>
+(p.nombre && p.nombre.toLowerCase().includes(input)) ||
+(p.id && p.id.toLowerCase().includes(input))
+);
+
+filtrados.slice(0,5).forEach(p=>{
+let item = document.createElement("div");
+item.className="suggestion";
+item.innerText = `${p.nombre || "Sin nombre"} (${p.id || "Sin ID"})`;
+item.onclick = ()=> seleccionarProducto(p);
+contenedor.appendChild(item);
+});
+
+};
+
+// 🔥 CUANDO SELECCIONAS PRODUCTO
+function seleccionarProducto(p){
+
+// llenar básicos
+document.getElementById("nombre").value = p.nombre || "";
+document.getElementById("pn").value = p.pn || "";
+
+// 🔥 LLENAR SIEMPRE ESTOS
+document.getElementById("ubicacion").value = p.ubicacion || "";
+document.getElementById("comentarios").value = p.comentarios || "";
+
+// 🔥 ID solo si existe
+const contenedorID = document.getElementById("contenedorID");
+const inputID = document.getElementById("idAuto");
+
+if(p.id){
+contenedorID.style.display = "block";
+inputID.value = p.id;
+}else{
+contenedorID.style.display = "none";
+inputID.value = "";
+}
+
+// 🔒 bloquear solo estos
+document.getElementById("nombre").readOnly = true;
+document.getElementById("pn").readOnly = true;
+
+// ✏️ aseguramos que estos se puedan editar SIEMPRE
+document.getElementById("ubicacion").disabled = false;
+document.getElementById("comentarios").readOnly = false;
+
+// limpiar sugerencias
+document.getElementById("sugerencias").innerHTML = "";
+}
+
+// 🔄 RESET
+function resetCampos(){
+
+document.getElementById("nombre").readOnly = false;
+document.getElementById("pn").readOnly = false;
+
+document.getElementById("nombre").value = "";
+document.getElementById("pn").value = "";
+document.getElementById("cantidad").value = "";
+document.getElementById("ubicacion").value = "";
+document.getElementById("comentarios").value = "";
+
+document.getElementById("contenedorID").style.display = "none";
+document.getElementById("idAuto").value = "";
+
+document.getElementById("sugerencias").innerHTML = "";
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+// 🔥 asegurar que cache cargue
+if(typeof window.showStock === "function"){
+window.showStock();
+}
+
+const inputCantidad = document.getElementById("cantidad");
+
+inputCantidad.addEventListener("keypress", (e) => {
+if (e.key === "Enter") {
+if (typeof registerEntry === "function") {
+registerEntry();
+}
+}
+});
+
+});
+</script>
+
+</body>
+</html>

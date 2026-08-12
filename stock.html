@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Inventario</title>
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+/* evitar parpadeo */
+body{
+opacity:0;
+transition:opacity 0.3s ease;
+}
+body.loaded{
+opacity:1;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>L10 ALMACEN</h2>
+
+<a href="index.html">Inicio</a>
+<a href="entrada.html">Registrar Entrada</a>
+<a href="salida.html">Registrar Salida</a>
+<a href="stock.html">Inventario</a>
+<a href="historial.html">Historial</a>
+
+<a id="adminMenu" href="usuarios.html">Usuarios</a>
+
+</div>
+
+<div class="user-bar">
+<span id="usuarioActivo">Cargando...</span>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="main">
+
+<div class="card">
+
+<h2>Inventario</h2>
+
+<button id="btnExport">📊 Exportar inventario a Excel</button>
+
+<br><br>
+
+<input 
+id="valor" 
+placeholder="Buscar por ID o nombre..."
+onkeyup="liveSearch()"
+style="width:100%; padding:10px; margin-bottom:20px;"
+>
+
+<table id="tablaInventario">
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Producto</th>
+<th>PN</th>
+<th>Cantidad</th>
+<th>Responsable</th>
+<th>Ubicación</th>
+<th>Comentarios</th>
+</tr>
+</thead>
+
+<tbody id="tabla"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- AUTH -->
+<script type="module" src="js/auth-global.js"></script>
+
+<!-- APP -->
+<script type="module" src="js/app.js"></script>
+
+<!-- CARGA SIN PARPADEO -->
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+  // esperar auth sin setInterval
+  let intentos = 0;
+
+  while (!window.currentUser && intentos < 20) {
+    await new Promise(r => setTimeout(r, 100));
+    intentos++;
+  }
+
+  console.log("Inventario listo");
+
+  if (typeof window.showStock === "function") {
+    window.showStock();
+  }
+
+  // mostrar UI cuando ya está todo listo
+  document.body.classList.add("loaded");
+
+});
+</script>
+
+<!-- 📊 EXPORTACIÓN -->
+<script>
+function exportarInventario(){
+
+let tabla = document.getElementById("tablaInventario");
+
+if(!tabla){
+alert("No se encontró la tabla");
+return;
+}
+
+let csv = "";
+
+// encabezados
+let headers = tabla.querySelectorAll("thead th");
+let headRow = [];
+
+headers.forEach(h=>{
+headRow.push(h.innerText.replace(/,/g," "));
+});
+
+csv += headRow.join(",") + "\n";
+
+// filas
+let filas = tabla.querySelectorAll("tbody tr");
+
+filas.forEach(fila=>{
+let cols = fila.querySelectorAll("td");
+let row = [];
+
+cols.forEach(col=>{
+row.push(col.innerText.replace(/,/g," "));
+});
+
+if(row.length > 0){
+csv += row.join(",") + "\n";
+}
+});
+
+// descargar
+let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+let link = document.createElement("a");
+
+link.href = URL.createObjectURL(blob);
+link.download = "inventario.csv";
+link.click();
+}
+
+// activar botón
+document.addEventListener("DOMContentLoaded", () => {
+let btn = document.getElementById("btnExport");
+if(btn){
+btn.addEventListener("click", exportarInventario);
+}
+});
+</script>
+
+</body>
+</html>

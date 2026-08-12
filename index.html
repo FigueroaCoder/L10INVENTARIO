@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>L10 ALMACEN</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>L10 ALMACEN</h2>
+
+<a href="index.html">Inicio</a>
+<a href="entrada.html">Registrar Entrada</a>
+<a href="salida.html">Registrar Salida</a>
+<a href="stock.html">Inventario</a>
+<a href="historial.html">Historial</a>
+
+<a id="adminMenu" href="usuarios.html">Usuarios</a>
+
+</div>
+
+<!-- USER BAR -->
+<div class="user-bar">
+<span id="usuarioActivo">Cargando...</span>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="main home">
+<h1>INVENTORY SYSTEM L10</h1>
+
+<p style="text-align:center; margin-top:20px;">
+Bienvenido al sistema de inventario
+</p>
+
+</div>
+
+<!-- ORDEN CORRECTO -->
+<script type="module" src="js/auth-global.js"></script>
+<script type="module" src="js/app.js"></script>
+
+<!-- VALIDACIÓN DE SESIÓN COMPLETA -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const interval = setInterval(() => {
+
+    if (!window.currentUser) return;
+
+    clearInterval(interval);
+
+    console.log("Sesión activa:", window.currentUser.email);
+
+  }, 200);
+
+});
+</script>
+
+</body>
+</html>
